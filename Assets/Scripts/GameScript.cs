@@ -12,18 +12,17 @@ public class GameScript : MonoBehaviour
     public static bool gameOver, updateScore;
     
     
-    private Material forbidden, okay;
+    private Material forbidden, okay; //different materials(color) for different object types
     public static List<Transform> transforms;
 
     public Text txtScore, txtGameOver;
 
     void Start()
     {
-        count = 0; //
+        count = 0; //increases through the gameplay to decide which object to instantiate, with difficulty variable. 
         score = 0;
         difficulty = 5; //the lesser the value, the harder the game
         frequency = 1f; //how frequently cubes will be created
-
 
         gameOver = false;
         updateScore = false;
@@ -34,6 +33,7 @@ public class GameScript : MonoBehaviour
 
         transforms = new List<Transform>();
 
+        //Called for the first time game started.
         CreateInvoke(frequency);
         UpdateScoreAndFrequency();
     }
@@ -71,12 +71,19 @@ public class GameScript : MonoBehaviour
         {
             count++;
             GameObject obj = Instantiate((GameObject)Resources.Load("Prefabs/Cube"), spawnPoint, Quaternion.identity);
-            obj.tag = (count % difficulty == 0) ? "forbidden" : "okay";
+
+            //decides the type of instantiated object. okay is the tag for wanted objects, forbidden for others.
+            obj.tag = (count % difficulty == 0) ? "forbidden" : "okay"; 
+
+            //attaches the appropriate material due to given object tag type.
             obj.GetComponent<MeshRenderer>().material = (obj.tag == "forbidden") ? forbidden : okay;
+
+            //collects all created objects in a list to control them easily.
             transforms.Add(obj.GetComponent<Transform>());
         }
     }
 
+    //makes objects moved along the way to the hole.
     private void FixedUpdate()
     {
         if (!gameOver)
@@ -88,6 +95,7 @@ public class GameScript : MonoBehaviour
         }
     }
 
+    //variables are set as before the game being played.
     private void Restart()
     {
         count = 0;
@@ -115,6 +123,7 @@ public class GameScript : MonoBehaviour
         txtScore.text = $"Score : {Convert.ToString(score)}";
         updateScore = false;
 
+        //the difficulty and frequency increases as the game goes on.
         if(score > 0 && score <= 50 && score % 10 == 0)
         {
             if (score > 10 && score <= 20)
@@ -157,7 +166,7 @@ public class GameScript : MonoBehaviour
 
     void CreateInvoke(float frequency)
     {
-        InvokeRepeating("SpawnObjects", 1f, (float)1 / frequency);
+        InvokeRepeating("SpawnObjects", 1f, (float)1 / frequency); //instantiates objects with a given frequency.
     }
 
     void RemoveInvoke()
